@@ -1,25 +1,55 @@
 import {GraphQLServer} from "graphql-yoga"
 
+//SCALAR TYPES - String, boolean, int, float and ID
+
 // TYPE DEFS (APP SCHEMA)
 const typeDefs = `
     type Query {
-        hello: String!
-        location: String!
-        bio: String!
+        me: User!
+        post: Post!
     }
+
+    type User {
+        id: ID!
+        name: String!
+        email: String!
+        age: Int
+    }
+
+    type Post {
+        id: ID!
+        title: String!
+        body: String!
+        published: Boolean!
+        author: User!
+    }
+    
 `
 
 // API RESOLVERS
 const resolvers = {
     Query: {
-        hello() {
-            return "This is my query!"
+        me() {
+            return {
+                id: "1230982",
+                name: "Jane Doe",
+                email: "jdoe@jmail.com",
+                age: null
+            }
         },
-        location(){
-            return "This is location"
-        },
-        bio(){
-            return "This is bio"
+        post() {
+            return {
+                id: "0012019",
+                title: "Test title",
+                body: "Lorem ipsum dolor sit amet...",
+                published: false,
+                author: {
+                    id: "1230982",
+                    name: "Jane Doe",
+                    email: "jdoe@jmail.com",
+                    age: null 
+                }
+            }
         }
     }
 }
