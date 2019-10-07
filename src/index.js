@@ -5,6 +5,7 @@ import {GraphQLServer} from "graphql-yoga"
 // TYPE DEFS (APP SCHEMA)
 const typeDefs = `
     type Query {
+        greeting(name: String, job: String): String!
         me: User!
         post: Post!
     }
@@ -29,6 +30,17 @@ const typeDefs = `
 // API RESOLVERS
 const resolvers = {
     Query: {
+        greeting(parent, args) {
+            var msg = ""
+
+            if (args.name) msg += `Hello, ${ args.name }!`
+            else msg += "Hello, guest!"
+            
+            if (args.job) msg += ` Your job position is: ${ args.job }.`
+            else msg += ""
+
+            return msg
+        },
         me() {
             return {
                 id: "1230982",
