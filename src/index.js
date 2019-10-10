@@ -1,5 +1,5 @@
 import {GraphQLServer} from "graphql-yoga"
-import { isTSAnyKeyword, exportAllDeclaration } from "@babel/types"
+import uuidv4 from 'uuid/v4'
 
 //SCALAR TYPES - String, boolean, int, float and ID
 
@@ -101,7 +101,28 @@ const typeDefs = `
     }
 
     type Mutation {
-        createUser(name: String!, email: String!, age: Int): User!
+        createUser(data: CreateUserInput!): User!
+        createPost(data: CreatePostInput!): Post!
+        createComment(data: CreateCommentInput!): Comment!
+    }
+
+    input CreateUserInput {
+        name: String!
+        email: String!
+        age: Int
+    }
+
+    input CreateCommentInput {
+        comment: String!
+        author: ID!
+        post: ID!
+    }
+
+    input CreatePostInput {
+        title: String!
+        body: String!
+        published: Boolean!
+        author: ID!
     }
 
     type User {
@@ -199,7 +220,48 @@ const resolvers = {
     },
     Mutation: {
         createUser(parent, args, ctx, info) {
-            console.log(args)
+            const emailTaken = USERS.some((user) => user.email == args.data.email)
+
+            if (emailTaken) {
+                throw new Error('Email is already taken!')
+            }
+
+            const user = {
+                id: uuidv4(),
+                ...args.data
+            }
+
+            USERS.push(user)
+            return user
+        },
+        createPost(parent, args, ctx, info) {
+            const userExists = USERS.some((user) => user.id == args.data.author)
+
+            if (!userExists) throw new Error('User not found!')
+            
+            const post = {
+                id: uuidv4(),
+                title: args.data.title,
+                ...args.data
+            }
+
+            POSTS.push(post)
+            return post
+        },
+        createComment(parent, args, ctx, info) {
+            const userExists = USERS.some((user) => user.id == args.data.author)
+            if (!userExists) throw new Error('User not found!')
+
+            const postExists = POSTS.some((post) => post.id == args.data.post && post.published)
+            if (!postExists) throw new Error('Post does not exist or is not published!')
+
+            const comment = {
+                id: uuidv4(),
+                ...args.data
+            }
+
+            COMMENTS.push(comment)
+            return comment
         }
     },
     Post: {
