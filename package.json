@@ -13,9 +13,8 @@
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "braces": "^3.0.2",
-    "eslint": "^6.5.1",
     "graphql-yoga": "^1.18.3",
-    "jest": "^24.9.0"
+    "uuid": "^3.3.3"
   },
   "devDependencies": {
     "nodemon": "^1.19.3"
