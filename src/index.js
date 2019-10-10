@@ -9,17 +9,20 @@ const POSTS = [{
     id: '1',
     title: 'Title 1',
     body: 'Lorem ipsum dolor sit amet...',
-    published: true
+    published: true,
+    author: '3'
 }, {
     id: '2',
     title: 'Another post title',
     body: 'Lorem ipsum dolor sit amet mussum...',
-    published: false
+    published: false,
+    author: '1'
 }, {
     id: '3',
     title: 'Yet another title for a post',
     body: 'Lorem ipsum dolor sit amet...',
-    published: true
+    published: true,
+    author: '3'
 }]
 
 //DEMO USER DATA
@@ -40,6 +43,50 @@ const USERS = [{
     age: 32
 }]
 
+// DUMMY COMMENTS
+
+const COMMENTS = [{
+    id: '1',
+    comment: 'Very nice!',
+    author: '2',
+    post: '3'
+}, {
+    id: '2',
+    comment: 'Don`t agree but ok',
+    author: '2',
+    post: '1'
+}, {
+    id: '3',
+    comment: 'LOL',
+    author: '2',
+    post: '2'
+}, {
+    id: '4',
+    comment: 'What`s so funny??',
+    author: '1',
+    post: '2'
+}, {
+    id: '5',
+    comment: 'First',
+    author: '3',
+    post: '2'
+}, {
+    id: '6',
+    comment: 'ok',
+    author: '1',
+    post: '3'
+}, {
+    id: '7',
+    comment: 'test',
+    author: '3',
+    post: '3'
+}, {
+    id: '8',
+    comment: 'finally',
+    author: '2',
+    post: '1'
+},]
+
 // TYPE DEFS (APP SCHEMA)
 const typeDefs = `
     type Query {
@@ -50,6 +97,7 @@ const typeDefs = `
         add(numbers: [Float!]): Float!
         grades: [Int!]!
         post: Post!
+        comments: [Comment!]!
     }
 
     type User {
@@ -57,6 +105,8 @@ const typeDefs = `
         name: String!
         email: String!
         age: Int
+        posts: [Post!]!
+        comments: [Comment!]!
     }
 
     type Post {
@@ -65,6 +115,14 @@ const typeDefs = `
         body: String!
         published: Boolean!
         author: User!
+        comments: [Comment!]!
+    }
+
+    type Comment {
+        id: ID!
+        comment: String!
+        author: User!
+        post: Post!
     }
     
 `
@@ -97,13 +155,11 @@ const resolvers = {
             if (!args.query) return POSTS
 
             return POSTS.filter((POSTS) => {
-               /*  if (POSTS.title.toLowerCase().includes(args.query.toLowerCase())) {
-                    return POSTS.title.toLowerCase().includes(args.query.toLowerCase())
-                } else if (POSTS.body.toLowerCase().includes(args.query.toLowerCase())) {
-                    return POSTS.body.toLowerCase().includes(args.query.toLowerCase())
-                } */
                 return POSTS.title.toLowerCase().includes(args.query.toLowerCase()) || POSTS.body.toLowerCase().includes(args.query.toLowerCase())
             })
+        },
+        comments(parent, args, ctx, info) {
+            return COMMENTS
         },
         grades(parent, args, ctx, info) {
             return [99,80,90]
@@ -135,6 +191,42 @@ const resolvers = {
                     age: null 
                 }
             }
+        }
+    },
+    Post: {
+        author(parent, args, ctx, info) {
+            return USERS.find((user) => {
+                return user.id == parent.author
+            })
+        },
+        comments(parent, args, ctx, info) {
+            return COMMENTS.filter((comment) => {
+                return comment.post == parent.id
+            })
+        }
+    },
+    User: {
+        posts(parent, args, ctx, info) {
+            return POSTS.filter((post) => {
+                return post.author == parent.id
+            })
+        },
+        comments(parent, args, ctx, info) {
+            return COMMENTS.filter((comment) => {
+                return comment.author == parent.id
+            })
+        }
+    },
+    Comment: {
+        author(parent, args, ctx, info) {
+            return USERS.find((user) => {
+                return user.id == parent.author 
+            })
+        },
+        post(parent, args, ctx, info) {
+            return POSTS.find((post) => {
+                return post.id == parent.post
+            })
         }
     }
 }
